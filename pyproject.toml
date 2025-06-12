@@ -1,0 +1,38 @@
+[project]
+name = "yt-membership-parser"
+version = "0.1.0"
+description = "A webserver that can parse screenshots of the YouTube membership billing screen"
+authors = [
+    {name = "ThiagoTGM", email = "thiagotgmgaming@gmail.com"}
+]
+license = "MIT"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "fastapi[all] (>=0.115.12,<0.116.0)",
+    "pytesseract (>=0.3.13,<0.4.0)",
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.8"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.4.0"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.11.13"
+pyright = "^1.1.402"
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=prepend",
+    "--strict-markers",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+]

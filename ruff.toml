@@ -1,0 +1,38 @@
+line-length = 100
+
+[format]
+docstring-code-format = true
+
+[lint]
+extend-select = [
+    "I001", # Import order
+    "N", # pep8 naming
+    "FAST", # FastAPI
+    "D", # pydocstyle
+    # "DOC", # pydoclint, not out of preview yet
+    "UP", # pyupgrade
+    "RUF", # ruff
+    # pylint
+    "PLC", # convention
+    "PLE", # error
+    "PLR", # refactor
+    "PLW", # warning
+    # pycodestyle
+    "E",
+    "W",
+]
+ignore = [
+    "D200",
+    "D202",
+    "D203",
+    "D212",
+    "D401",
+    "PLR09", # "too many [something]" rules are too opinionated
+    "UP015", # defining the file mode even if it's redundant works as self-documentation
+]
+
+[lint.per-file-ignores]
+"tests/**" = [
+    "D103",
+    "PLR2004"
+]
