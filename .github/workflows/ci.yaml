@@ -93,7 +93,7 @@ jobs:
           push: never
           runCmd: poetry run ruff format --check
 
-      - name: Tests
+      - name: Unit tests
         uses: devcontainers/ci@v0.3
         with:
           imageName: ${{ env.DEVCONTAINER_IMAGE }}
@@ -102,7 +102,7 @@ jobs:
           push: never
           runCmd: poetry run pytest -m unit
 
-      - name: Tests
+      - name: Integration tests
         uses: devcontainers/ci@v0.3
         with:
           imageName: ${{ env.DEVCONTAINER_IMAGE }}
