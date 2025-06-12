@@ -36,3 +36,4 @@ markers = [
     "unit: Unit tests",
     "integration: Integration tests",
 ]
+log_level = "INFO"
