@@ -2,7 +2,7 @@
     "name": "yt-membership-parser-dev",
     "build": {
         "dockerfile": "Dockerfile",
-        "cacheFrom": "yt-membership-parser-devcontainer:main"
+        "cacheFrom": "ghcr.io/thiagotgm/yt-membership-parser-devcontainer:main"
     },
 
     "remoteUser": "vscode",
