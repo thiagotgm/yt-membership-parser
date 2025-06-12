@@ -2,7 +2,10 @@
 API definition.
 """
 
+from datetime import date
+
 from fastapi import FastAPI
+from pydantic import BaseModel, ConfigDict
 
 app = FastAPI(
     title="YouTube Membership Parser",
@@ -11,9 +14,20 @@ app = FastAPI(
 )
 
 
+class ParseResult(BaseModel):
+    """
+    The result of a screenshot parse operation.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    next_billing_date: date
+
+
 @app.get("/parse")
-async def parse_screenshot():
+async def parse_screenshot() -> ParseResult:
     """
     Parses a membership screenshot.
     """
-    raise NotImplementedError()
+
+    return ParseResult(next_billing_date=date(2025, 1, 1))
