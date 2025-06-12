@@ -69,6 +69,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Create ssh directory
+        run: |
+          mkdir ~/.ssh
+          chmod 0700 ~/.ssh
+
       - name: Lint
         uses: devcontainers/ci@v0.3
         with:
