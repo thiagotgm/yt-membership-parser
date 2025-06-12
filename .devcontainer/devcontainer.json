@@ -1,6 +1,9 @@
 {
     "name": "yt-membership-parser-dev",
-    "image": "mcr.microsoft.com/devcontainers/base:bookworm",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "cacheFrom": "yt-membership-parser-devcontainer:main"
+    },
 
     "remoteUser": "vscode",
     "mounts": [
@@ -8,9 +11,6 @@
     ],
 
     "features": {
-        "ghcr.io/devcontainers-extra/features/apt-packages:1": {
-            "packages": "tesseract-ocr-all=5.3.0-2"
-        },
         "ghcr.io/devcontainers/features/python:1": {
             "version": "3.13",
             "installTools": true,
