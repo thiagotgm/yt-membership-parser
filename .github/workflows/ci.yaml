@@ -23,7 +23,7 @@ concurrency:
 
 env:
   DEVCONTAINER_IMAGE: ghcr.io/${{ github.repository }}-devcontainer
-  DEVCONTAINER_TAG: ${{ github.ref_name }}
+  DEVCONTAINER_TAG: ${{ ( github.event_name == 'push' && github.ref_type == 'branch' ) && github.ref_name || 'main' }}
 
 jobs:
   build-devcontainer:
@@ -78,7 +78,6 @@ jobs:
         uses: devcontainers/ci@v0.3
         with:
           imageName: ${{ env.DEVCONTAINER_IMAGE }}
-          imageTag: ${{ env.DEVCONTAINER_TAG }}
           cacheFrom: "${{ env.DEVCONTAINER_IMAGE }}:${{ env.DEVCONTAINER_TAG }}"
           push: never
           runCmd: poetry run ruff check
@@ -88,7 +87,6 @@ jobs:
         uses: devcontainers/ci@v0.3
         with:
           imageName: ${{ env.DEVCONTAINER_IMAGE }}
-          imageTag: ${{ env.DEVCONTAINER_TAG }}
           cacheFrom: "${{ env.DEVCONTAINER_IMAGE }}:${{ env.DEVCONTAINER_TAG }}"
           push: never
           runCmd: poetry run ruff format --check
@@ -97,7 +95,6 @@ jobs:
         uses: devcontainers/ci@v0.3
         with:
           imageName: ${{ env.DEVCONTAINER_IMAGE }}
-          imageTag: ${{ env.DEVCONTAINER_TAG }}
           cacheFrom: "${{ env.DEVCONTAINER_IMAGE }}:${{ env.DEVCONTAINER_TAG }}"
           push: never
           runCmd: poetry run pytest -m unit
@@ -106,7 +103,6 @@ jobs:
         uses: devcontainers/ci@v0.3
         with:
           imageName: ${{ env.DEVCONTAINER_IMAGE }}
-          imageTag: ${{ env.DEVCONTAINER_TAG }}
           cacheFrom: "${{ env.DEVCONTAINER_IMAGE }}:${{ env.DEVCONTAINER_TAG }}"
           push: never
           runCmd: poetry run pytest -m integration
