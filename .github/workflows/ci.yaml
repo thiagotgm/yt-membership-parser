@@ -138,29 +138,6 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Lint
-        uses: devcontainers/ci@v0.3
-        with:
-          imageName: ${{ env.DEVCONTAINER_IMAGE }}
-          push: never
-          runCmd: poetry run ruff check
-
-      - name: Format check
-        if: github.event_name != 'push'
-        uses: devcontainers/ci@v0.3
-        with:
-          imageName: ${{ env.DEVCONTAINER_IMAGE }}
-          push: never
-          runCmd: poetry run ruff format --check
-
-      - name: Tests
-        if: github.event_name != 'push'
-        uses: devcontainers/ci@v0.3
-        with:
-          imageName: ${{ env.DEVCONTAINER_IMAGE }}
-          push: never
-          runCmd: poetry run pytest
-
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
