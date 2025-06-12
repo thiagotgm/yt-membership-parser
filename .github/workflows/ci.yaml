@@ -161,6 +161,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
 
       - name: Install Cosign
+        if: github.event_name == 'push'
         uses: sigstore/cosign-installer@v3.8.2
         with:
           cosign-release: 'v2.4.1'
