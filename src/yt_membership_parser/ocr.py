@@ -8,6 +8,8 @@ import pytesseract
 from langcodes import Language
 from PIL.Image import Image
 
+from .locales import SUPPORTED_LOCALES
+
 
 def _get_language(locale: Language) -> str:
     """
@@ -37,10 +39,7 @@ def _make_language_string(locales: Iterable[Language]) -> str:
     return "+".join({_get_language(locale) for locale in locales})
 
 
-_ALL_LANGUAGES = _make_language_string(
-    Language.get(locale)
-    for locale in ("en-US",)  # TODO
-)
+_ALL_LANGUAGES = _make_language_string(SUPPORTED_LOCALES)
 """Combined language tag with all supported languages"""
 
 

@@ -8,11 +8,11 @@ from typing import Annotated
 
 from fastapi import FastAPI, HTTPException, Query, Request, status
 from langcodes import Language
-from langcodes.tag_parser import LanguageTagError
 from PIL import Image
 from pydantic import BaseModel, ConfigDict
 
 from .image_processing import process_screenshot
+from .locales import parse_locale
 from .ocr import extract_text
 from .text_parsing import ScreenshotData, parse_extracted_text
 
@@ -34,25 +34,6 @@ class ParseResult(BaseModel):
 
     parsed_data: ScreenshotData | None
     """The data parsed from the screenshot"""
-
-
-def _parse_locale(locale_str: str) -> Language | None:
-    """
-    Parses a locale.
-
-    :param locale_str: The locale string
-    :return: The parsed locale, or `None` if the given string is not a valid locale
-    """
-
-    try:
-        locale = Language.get(locale_str)
-    except LanguageTagError:
-        return None
-
-    if not locale.is_valid():
-        return None
-
-    return locale
 
 
 def _find_matching_locales(locale: Language) -> tuple[Language, ...]:
@@ -95,7 +76,7 @@ async def parse_screenshot(
     """
 
     if locale is not None:
-        requested_locale = _parse_locale(locale)
+        requested_locale = parse_locale(locale)
         if not requested_locale:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid locale {locale}"
