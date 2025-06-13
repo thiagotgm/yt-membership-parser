@@ -55,6 +55,17 @@ def _parse_locale(locale_str: str) -> Language | None:
     return locale
 
 
+def _find_matching_locales(locale: Language) -> tuple[Language, ...]:
+    """
+    Obtains the supported locales that match a requested locale.
+
+    :param locale: The requested locale
+    :return: The matching supported locales
+    """
+
+    return (locale,)  # TODO
+
+
 @app.post(
     "/parse",
     openapi_extra={
@@ -84,13 +95,19 @@ async def parse_screenshot(
     """
 
     if locale is not None:
-        locale_obj = _parse_locale(locale)
-        if not locale_obj:
+        requested_locale = _parse_locale(locale)
+        if not requested_locale:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid locale {locale}"
             )
+
+        locales = _find_matching_locales(requested_locale)
+        if not locales:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail=f"Locale not supported {locale}"
+            )
     else:
-        locale_obj = None
+        locales = None
 
     # Only read image data once all other inputs have been validated to avoid wasting badwidth
     screenshot_data = BytesIO()
@@ -99,8 +116,8 @@ async def parse_screenshot(
     screenshot = Image.open(screenshot_data)
 
     processed_screenshot = process_screenshot(screenshot=screenshot)
-    extracted_text = extract_text(screenshot=processed_screenshot, locale=locale_obj)
+    extracted_text = extract_text(screenshot=processed_screenshot, locales=locales)
     _LOGGER.debug("Extracted text: %s", extracted_text)
-    parsed = parse_extracted_text(extracted_text=extracted_text, locale=locale_obj)
+    parsed = parse_extracted_text(extracted_text=extracted_text, locales=locales)
 
     return ParseResult(parsed_data=parsed)
