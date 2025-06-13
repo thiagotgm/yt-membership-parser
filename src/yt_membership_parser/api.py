@@ -2,10 +2,18 @@
 API definition.
 """
 
-from datetime import date
+from io import BytesIO
+from typing import Annotated
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Query, Request, status
+from langcodes import Language
+from langcodes.tag_parser import LanguageTagError
+from PIL import Image
 from pydantic import BaseModel, ConfigDict
+
+from .image_processing import process_screenshot
+from .ocr import extract_text
+from .text_parsing import ScreenshotData, parse_extracted_text
 
 app = FastAPI(
     title="YouTube Membership Parser",
@@ -21,13 +29,74 @@ class ParseResult(BaseModel):
 
     model_config = ConfigDict(frozen=True)
 
-    next_billing_date: date
+    parsed_data: ScreenshotData | None
+    """The data parsed from the screenshot"""
 
 
-@app.get("/parse")
-async def parse_screenshot() -> ParseResult:
+def _parse_locale(locale_str: str) -> Language | None:
+    """
+    Parses a locale.
+
+    :param locale_str: The locale string
+    :return: The parsed locale, or `None` if the given string is not a valid locale
+    """
+
+    try:
+        locale = Language.get(locale_str)
+    except LanguageTagError:
+        return None
+
+    if not locale.is_valid():
+        return None
+
+    return locale
+
+
+@app.post(
+    "/parse",
+    openapi_extra={
+        "requestBody": {
+            "content": {
+                "image/*": {
+                    "schema": {
+                        "type": "string",
+                        "format": "binary",
+                    },
+                },
+            },
+        },
+    },
+)
+async def parse_screenshot(
+    request: Request,
+    locale: Annotated[
+        str | None,
+        Query(
+            description="The locale to parse as, if known",
+        ),
+    ] = None,
+) -> ParseResult:
     """
     Parses a membership screenshot.
     """
 
-    return ParseResult(next_billing_date=date(2025, 1, 1))
+    if locale is not None:
+        locale_obj = _parse_locale(locale)
+        if not locale_obj:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid locale {locale}"
+            )
+    else:
+        locale_obj = None
+
+    # Only read image data once all other inputs have been validated to avoid wasting badwidth
+    screenshot_data = BytesIO()
+    async for chunk in request.stream():
+        screenshot_data.write(chunk)
+    screenshot = Image.open(screenshot_data)
+
+    processed_screenshot = process_screenshot(screenshot=screenshot)
+    extracted_text = extract_text(screenshot=processed_screenshot, locale=locale_obj)
+    parsed = parse_extracted_text(extracted_text=extracted_text, locale=locale_obj)
+
+    return ParseResult(parsed_data=parsed)
