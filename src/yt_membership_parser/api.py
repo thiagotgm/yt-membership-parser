@@ -2,6 +2,7 @@
 API definition.
 """
 
+import asyncio
 import logging
 from io import BytesIO
 from typing import Annotated
@@ -84,9 +85,13 @@ async def parse_screenshot(
         screenshot_data.write(chunk)
     screenshot = Image.open(screenshot_data)
 
-    processed_screenshot = process_screenshot(screenshot=screenshot)
-    extracted_text = extract_text(screenshot=processed_screenshot, locales=locales)
+    processed_screenshot = await asyncio.to_thread(process_screenshot, screenshot=screenshot)
+    extracted_text = await asyncio.to_thread(
+        extract_text, screenshot=processed_screenshot, locales=locales
+    )
     _LOGGER.debug("Extracted text: %s", extracted_text)
-    parsed = parse_extracted_text(extracted_text=extracted_text, locales=locales)
+    parsed = await asyncio.to_thread(
+        parse_extracted_text, extracted_text=extracted_text, locales=locales
+    )
 
     return ParseResult(parsed_data=parsed)
