@@ -42,6 +42,9 @@ class LocaleParserSpec:
     locale: Language
     """The locale code"""
 
+    dateparser_locale: str
+    """The locale code to use with dateparser"""
+
     billing_pattern: re.Pattern
     """The pattern that matches the billing line"""
 
@@ -51,7 +54,9 @@ class LocaleParserSpec:
     @classmethod
     def of(
         cls,
+        *,
         locale: str,
+        dateparser_locale: str | None = None,
         billing_pattern: str,
         billing_post_processor: Callable[[str], str] = lambda b: b,
     ) -> Self:
@@ -59,6 +64,8 @@ class LocaleParserSpec:
         Creates a new instance.
 
         :param locale: The locale code
+        :param dateparser_locale: The locale code to use with dateparser, if different than the
+                                  main locale code
         :param billing_pattern: The pattern that matches the billing line
         :param billing_post_processor: Post-processor function to apply to matched billing line
         """
@@ -69,6 +76,7 @@ class LocaleParserSpec:
 
         return cls(
             locale=locale_obj,
+            dateparser_locale=dateparser_locale or locale_obj.to_tag(),
             billing_pattern=re.compile(billing_pattern),
             billing_post_processor=billing_post_processor,
         )
@@ -76,10 +84,15 @@ class LocaleParserSpec:
 
 PARSERS: tuple[LocaleParserSpec, ...] = (
     LocaleParserSpec.of(
-        locale="en-US", billing_pattern=r"Next billing date: (?P<billing>\w++ \d++(?:, \d++)?)"
+        locale="en-US",
+        dateparser_locale="en",
+        billing_pattern=r"Next billing date: (?P<billing>\w++ \d++)",
     ),
 )
 """The available parsers"""
+
+PARSER_MAP: dict[Language, LocaleParserSpec] = {parser.locale: parser for parser in PARSERS}
+"""The parsers, keyed by the locale"""
 
 SUPPORTED_LOCALES: frozenset[Language] = frozenset(parser.locale for parser in PARSERS)
 """The supported locales"""
