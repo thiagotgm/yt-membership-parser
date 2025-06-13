@@ -7,12 +7,11 @@ from io import BytesIO
 from typing import Annotated
 
 from fastapi import FastAPI, HTTPException, Query, Request, status
-from langcodes import Language
 from PIL import Image
 from pydantic import BaseModel, ConfigDict
 
 from .image_processing import process_screenshot
-from .locales import parse_locale
+from .locales import find_matching_locales, parse_locale
 from .ocr import extract_text
 from .text_parsing import ScreenshotData, parse_extracted_text
 
@@ -34,17 +33,6 @@ class ParseResult(BaseModel):
 
     parsed_data: ScreenshotData | None
     """The data parsed from the screenshot"""
-
-
-def _find_matching_locales(locale: Language) -> tuple[Language, ...]:
-    """
-    Obtains the supported locales that match a requested locale.
-
-    :param locale: The requested locale
-    :return: The matching supported locales
-    """
-
-    return (locale,)  # TODO
 
 
 @app.post(
@@ -82,7 +70,7 @@ async def parse_screenshot(
                 status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid locale {locale}"
             )
 
-        locales = _find_matching_locales(requested_locale)
+        locales = find_matching_locales(requested_locale)
         if not locales:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail=f"Locale not supported {locale}"

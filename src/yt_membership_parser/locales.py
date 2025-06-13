@@ -86,3 +86,24 @@ SUPPORTED_LOCALES: frozenset[Language] = frozenset(parser.locale for parser in P
 
 if len(PARSERS) > len(SUPPORTED_LOCALES):
     raise ValueError("Duplicate parser detected")  # Sanity check
+
+
+def find_matching_locales(locale: Language) -> tuple[Language, ...]:
+    """
+    Obtains the supported locales that match a requested locale.
+
+    :param locale: The requested locale
+    :return: The matching supported locales
+    """
+
+    locale_tag = locale.to_tag()
+    matches = {
+        loc
+        for loc in SUPPORTED_LOCALES
+        if loc == locale or loc.to_tag().startswith(f"{locale_tag}-")
+    }
+    if matches:
+        return tuple(matches)
+
+    matches = {loc for loc in SUPPORTED_LOCALES if locale_tag.startswith(f"{loc.to_tag()}-")}
+    return tuple(matches)
