@@ -2,6 +2,7 @@
 API definition.
 """
 
+import logging
 from io import BytesIO
 from typing import Annotated
 
@@ -20,6 +21,8 @@ app = FastAPI(
     description="API for parsing YouTube membership billing screenshots",
     version="0.1.0",
 )
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class ParseResult(BaseModel):
@@ -97,6 +100,7 @@ async def parse_screenshot(
 
     processed_screenshot = process_screenshot(screenshot=screenshot)
     extracted_text = extract_text(screenshot=processed_screenshot, locale=locale_obj)
+    _LOGGER.debug("Extracted text: %s", extracted_text)
     parsed = parse_extracted_text(extracted_text=extracted_text, locale=locale_obj)
 
     return ParseResult(parsed_data=parsed)
