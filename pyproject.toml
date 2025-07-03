@@ -24,7 +24,7 @@ poetry-plugin-export = ">=1.8"
 pytest = "^8.4.0"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.11.13"
+ruff = "^0.12.2"
 pyright = "^1.1.402"
 
 [tool.pytest.ini_options]
